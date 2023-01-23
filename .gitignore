@@ -1,0 +1,9 @@
+.DS_Store
+coverage/
+.vscode/
+.idea/
+.metals/
+.log/
+*~
+**/build/
+**/node_modules
