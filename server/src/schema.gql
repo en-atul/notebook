@@ -1,0 +1,50 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""Auth model"""
+type AuthResponse {
+  """A unique identifier"""
+  id: ID!
+  fullname: String!
+  email: String!
+  access_token: String!
+  refresh_token: String!
+}
+
+"""Tokens"""
+type RefreshTokenResponse {
+  access_token: String!
+  refresh_token: String!
+}
+
+type Query {
+  refreshToken: RefreshTokenResponse!
+  logout: Boolean!
+}
+
+type Mutation {
+  signup(signupInput: signupInput!): AuthResponse!
+  login(loginInput: loginInput!): AuthResponse!
+}
+
+"""Signup user input object type."""
+input signupInput {
+  """User Name"""
+  fullname: String!
+
+  """User Email"""
+  email: String!
+
+  """User Password"""
+  password: String!
+}
+
+"""Login user input object type."""
+input loginInput {
+  """User Email"""
+  email: String!
+
+  """User Password"""
+  password: String!
+}
