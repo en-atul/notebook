@@ -2,7 +2,7 @@ import { Field, ID, ObjectType } from '@nestjs/graphql';
 
 @ObjectType({ description: 'Auth model' })
 export class AuthResponse {
-  @Field(() => ID, { description: 'A unique identifier' }) // 👈
+  @Field()
   id: string;
 
   @Field()

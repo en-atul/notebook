@@ -8,6 +8,9 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AtGuard } from './common/guards';
+import { NotesResolver } from './notes/notes.resolver';
+import { NotesService } from './notes/notes.service';
+import { NotesModule } from './notes/notes.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -18,12 +21,15 @@ import { AtGuard } from './common/guards';
     AuthModule,
     PrismaModule,
     PubSubModule,
+    NotesModule,
   ],
   providers: [
     {
       provide: APP_GUARD,
       useClass: AtGuard,
     },
+    NotesResolver,
+    NotesService,
   ],
 })
 export class AppModule {}
