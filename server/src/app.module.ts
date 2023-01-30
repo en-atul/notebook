@@ -17,6 +17,21 @@ import { NotesModule } from './notes/notes.module';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      installSubscriptionHandlers: true,
+      subscriptions: {
+        'subscriptions-transport-ws': {
+          onConnect: (connectionParams) => {
+            const authToken = connectionParams['Authorization'];
+            return {
+              req: {
+                headers: {
+                  authorization: authToken,
+                },
+              },
+            };
+          },
+        },
+      },
     }),
     AuthModule,
     PrismaModule,

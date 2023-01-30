@@ -1,11 +1,12 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { PubSub } from 'graphql-subscriptions';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateNoteResponse, noteInput } from './dto';
 
 @Injectable()
 export class NotesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private readonly pubSub: PubSub) {}
 
   async create(
     userId: string,
@@ -27,10 +28,14 @@ export class NotesService {
         throw error;
       });
 
-    return {
+    const createdNote = {
       id: note.id,
       title: note.title,
       content: note.content,
     };
+
+    this.pubSub.publish('noteCreated', { noteCreated: createdNote });
+
+    return createdNote;
   }
 }
