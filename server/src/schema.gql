@@ -4,8 +4,7 @@
 
 """Auth model"""
 type AuthResponse {
-  """A unique identifier"""
-  id: ID!
+  id: String!
   fullname: String!
   email: String!
   access_token: String!
@@ -18,14 +17,31 @@ type RefreshTokenResponse {
   refresh_token: String!
 }
 
+"""Craete Note model"""
+type CreateNoteResponse {
+  id: String!
+  title: String!
+  content: String!
+}
+
 type Query {
   refreshToken: RefreshTokenResponse!
   logout: Boolean!
 }
 
 type Mutation {
+  createNote(noteInput: noteInput!): CreateNoteResponse!
   signup(signupInput: signupInput!): AuthResponse!
   login(loginInput: loginInput!): AuthResponse!
+}
+
+"""Note request object type."""
+input noteInput {
+  """Note Title"""
+  title: String!
+
+  """Note Content"""
+  content: String!
 }
 
 """Signup user input object type."""
