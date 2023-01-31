@@ -34,6 +34,23 @@ QUERY VARIABLES
 
 ```
 
+## create note subscription
+```
+subscription{
+  noteCreated{
+    id
+    title
+    content
+  }
+}
+
+HTTP HEADERS
+
+{
+  "Authorization":"Bearer access_token"
+}
+```
+
 more info ... CS
 
 ## frontend stack
