@@ -2,7 +2,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useQueryClient } from "react-query";
 import { CurrentUserType } from "interfaces";
 import { FC, ReactNode } from "react";
-import { DafaultLayout } from "components";
+import { DefaultLayout } from "components";
 
 export const PrivateRoute: FC<{
   children: ReactNode;
@@ -10,7 +10,7 @@ export const PrivateRoute: FC<{
     children: ReactNode;
   }>;
 }> = ({ children, layout: ComponentLayout }) => {
-  const Layout = ComponentLayout || DafaultLayout;
+  const Layout = ComponentLayout || DefaultLayout;
   const queryClient = useQueryClient();
   const data = queryClient.getQueryData<CurrentUserType>("auth");
 

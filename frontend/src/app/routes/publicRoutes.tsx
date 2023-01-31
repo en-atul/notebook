@@ -1,7 +1,7 @@
 import { PublicRoute } from "components/HOCs";
 import { Route } from "react-router-dom";
 import Signup from "features/Auth/Signup";
-import { DafaultLayout } from "components";
+import { DefaultLayout } from "components";
 import Login from "features/Auth/Login";
 
 export const PublicRoutes = () => [
@@ -9,7 +9,7 @@ export const PublicRoutes = () => [
     path="signup"
     key="signup"
     element={
-      <PublicRoute layout={DafaultLayout}>
+      <PublicRoute layout={DefaultLayout}>
         <Signup />
       </PublicRoute>
     }
@@ -18,10 +18,9 @@ export const PublicRoutes = () => [
     path="login"
     key="login"
     element={
-      <PublicRoute layout={DafaultLayout}>
+      <PublicRoute layout={DefaultLayout}>
         <Login />
       </PublicRoute>
     }
   />,
- 
 ];

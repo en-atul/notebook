@@ -1,2 +1,2 @@
-export * from "./DafaultLayout"
-export * from "./DashboardLayout"
+export * from "./DefaultLayout";
+export * from "./DashboardLayout";

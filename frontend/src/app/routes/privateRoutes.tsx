@@ -1,6 +1,6 @@
 import { Route } from "react-router-dom";
 import { PrivateRoute } from "components/HOCs";
-import { DafaultLayout } from "components";
+import { DefaultLayout } from "components";
 import NotesPage from "features/Notes";
 
 export const PrivateRoutes = () => [
@@ -8,7 +8,7 @@ export const PrivateRoutes = () => [
     path="/"
     key="/"
     element={
-      <PrivateRoute layout={DafaultLayout}>
+      <PrivateRoute layout={DefaultLayout}>
         <NotesPage />
       </PrivateRoute>
     }
