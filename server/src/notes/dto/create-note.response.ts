@@ -1,8 +1,8 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 
 @ObjectType({ description: 'Craete Note model' })
-export class CreateNoteResponse {
-  @Field() 
+export class NoteResponse {
+  @Field()
   id: string;
 
   @Field()

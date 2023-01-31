@@ -18,19 +18,20 @@ type RefreshTokenResponse {
 }
 
 """Craete Note model"""
-type CreateNoteResponse {
+type NoteResponse {
   id: String!
   title: String!
   content: String!
 }
 
 type Query {
+  getNotes: [NoteResponse!]!
   refreshToken: RefreshTokenResponse!
   logout: Boolean!
 }
 
 type Mutation {
-  createNote(noteInput: noteInput!): CreateNoteResponse!
+  createNote(noteInput: noteInput!): NoteResponse!
   signup(signupInput: signupInput!): AuthResponse!
   login(loginInput: loginInput!): AuthResponse!
 }
@@ -66,5 +67,5 @@ input loginInput {
 }
 
 type Subscription {
-  noteCreated: CreateNoteResponse!
+  noteCreated: NoteResponse!
 }
