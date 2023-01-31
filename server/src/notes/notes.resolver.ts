@@ -25,7 +25,7 @@ export class NotesResolver {
   }
 
   @Mutation(() => NoteResponse)
-  updateNote(@Args('noteInput') noteInput: NoteResponse) {
+  updateNote(@Args('noteInput') noteInput: noteInput) {
     const { id, ...rest } = noteInput;
     return this.notesService.update(id, rest);
   }

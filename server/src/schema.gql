@@ -32,12 +32,16 @@ type Query {
 
 type Mutation {
   createNote(noteInput: noteInput!): NoteResponse!
+  updateNote(noteInput: noteInput!): NoteResponse!
   signup(signupInput: signupInput!): AuthResponse!
   login(loginInput: loginInput!): AuthResponse!
 }
 
 """Note request object type."""
 input noteInput {
+  """Note Id"""
+  id: String
+
   """Note Title"""
   title: String!
 
