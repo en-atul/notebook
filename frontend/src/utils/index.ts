@@ -1,1 +1,2 @@
-export * from "./reactQueryConfig";
+export * from "./graphqlClient"
+export * from "./reactQueryClient";
