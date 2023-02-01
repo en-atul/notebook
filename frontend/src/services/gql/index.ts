@@ -31,6 +31,17 @@ const LOGIN_QUERY = gql`
   }
 `;
 
+const CREATE_NOTE_QUERY = gql`
+  mutation createNote($input: noteInput!) {
+    createNote(noteInput: $input) {
+      id
+      title
+      content
+      createdAt
+    }
+  }
+`;
+
 const GET_NOTES_QUERY = gql`
   query getNotes {
     getNotes {
@@ -85,6 +96,7 @@ export {
   graphQLClient,
   SIGNUP_QUERY,
   LOGIN_QUERY,
+  CREATE_NOTE_QUERY,
   GET_NOTES_QUERY,
   UPDATE_NOTE_QUERY,
   REFRESH_TOKEN_QUERY,

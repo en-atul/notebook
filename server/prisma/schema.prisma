@@ -27,7 +27,7 @@ model Note {
   id          String   @id @default(uuid())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  title       String
+  title       String?
   content     String?
   belongsTo   User     @relation(fields: [belongsToId], references: [id])
   belongsToId String

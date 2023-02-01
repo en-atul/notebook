@@ -6,8 +6,8 @@ export class noteInput {
   id?: string;
 
   @Field(() => String, { description: 'Note Title' })
-  title: string;
+  title?: string;
 
   @Field(() => String, { description: 'Note Content' })
-  content: string;
+  content?: string;
 }

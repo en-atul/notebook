@@ -44,10 +44,10 @@ input noteInput {
   id: String
 
   """Note Title"""
-  title: String!
+  title: String
 
   """Note Content"""
-  content: String!
+  content: String
 }
 
 """Signup user input object type."""
