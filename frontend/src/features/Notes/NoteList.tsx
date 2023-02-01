@@ -160,29 +160,31 @@ export function NoteList() {
       </div>
       <div className="w-full h-[calc(100vh_-_80px)] overflow-y-auto px-2">
         {Array.isArray(notes) && notes.length ? (
-          notes.map((note, idx) => (
-            <div
-              key={idx}
-              onClick={() => setCurrentNote(note)}
-              onContextMenu={() => setCurrentNote(note)}
-              className={classNames("my-2", {
-                "bg-violet-50 rounded-md": selectedNote?.id === note.id,
-              })}
-            >
+          notes
+            .sort((a, b) => Number(b.updatedAt) - Number(a.updatedAt))
+            .map((note, idx) => (
               <div
-                className={classNames("p-3 cursor-default", {
-                  "border-b": selectedNote?.id !== note.id,
+                key={idx}
+                onClick={() => setCurrentNote(note)}
+                onContextMenu={() => setCurrentNote(note)}
+                className={classNames("my-2", {
+                  "bg-violet-50 rounded-md": selectedNote?.id === note.id,
                 })}
               >
-                <p className="capitalize font-medium">
-                  {note.title || "New Note"}
-                </p>
-                <p className="capitalize text-xs font-light text-gray-500 mt-2">
-                  {note.content || "No additional text"}
-                </p>
+                <div
+                  className={classNames("p-3 cursor-default", {
+                    "border-b": selectedNote?.id !== note.id,
+                  })}
+                >
+                  <p className="capitalize font-medium">
+                    {note.title || "New Note"}
+                  </p>
+                  <p className="capitalize text-xs font-light text-gray-500 mt-2">
+                    {note.content || "No additional text"}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))
+            ))
         ) : isLoading ? (
           Array(7)
             .fill({})

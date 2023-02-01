@@ -13,4 +13,7 @@ export class NoteResponse {
 
   @Field()
   createdAt?: string;
+
+  @Field()
+  updatedAt?: string;
 }

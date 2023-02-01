@@ -38,6 +38,7 @@ const CREATE_NOTE_QUERY = gql`
       title
       content
       createdAt
+      updatedAt
     }
   }
 `;
@@ -49,6 +50,7 @@ const GET_NOTES_QUERY = gql`
       title
       content
       createdAt
+      updatedAt
     }
   }
 `;
@@ -60,6 +62,7 @@ const UPDATE_NOTE_QUERY = gql`
       title
       content
       createdAt
+      updatedAt
     }
   }
 `;
