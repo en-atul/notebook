@@ -7,7 +7,19 @@ const GRAPHQL_ENDPOINT = "http://localhost:3001/graphql/";
 
 const graphQLClient = new GraphQLClient(GRAPHQL_ENDPOINT);
 
-const loginQuery = gql`
+const SIGNUP_QUERY = gql`
+  mutation signup($input: signupInput!) {
+    signup(signupInput: $input) {
+      id
+      fullname
+      email
+      access_token
+      refresh_token
+    }
+  }
+`;
+
+const LOGIN_QUERY = gql`
   mutation login($input: loginInput!) {
     login(loginInput: $input) {
       id
@@ -19,7 +31,7 @@ const loginQuery = gql`
   }
 `;
 
-const getNotesQuery = gql`
+const GET_NOTES_QUERY = gql`
   query getNotes {
     getNotes {
       id
@@ -30,7 +42,7 @@ const getNotesQuery = gql`
   }
 `;
 
-const updateNoteQuery = gql`
+const UPDATE_NOTE_QUERY = gql`
   mutation updateNote($input: noteInput!) {
     updateNote(noteInput: $input) {
       id
@@ -41,26 +53,40 @@ const updateNoteQuery = gql`
   }
 `;
 
-const queryHandler = (query: string, variables?: any) => {
-  const access_token = queryClient.getQueryData<CurrentUserType>(
-    queryKeys.auth
-  )?.access_token;
+const REFRESH_TOKEN_QUERY = gql`
+  query refreshToken {
+    refreshToken {
+      access_token
+      refresh_token
+    }
+  }
+`;
 
-  if (access_token) {
+const queryHandler = (query: string, variables?: any) => {
+  const user = queryClient.getQueryData<CurrentUserType>(queryKeys.auth);
+
+  if (user?.access_token) {
     graphQLClient.setHeaders({
-      authorization: `Bearer ${access_token}`,
+      authorization: `Bearer ${user.access_token}`,
       anotherheader: "authorization",
     });
   }
-  return variables
-    ? graphQLClient.request(query, variables)
-    : graphQLClient.request(query);
+
+  if (query === REFRESH_TOKEN_QUERY && user?.refresh_token) {
+    graphQLClient.setHeaders({
+      authorization: `Bearer ${user.refresh_token}`,
+      anotherheader: "authorization",
+    });
+  }
+  return graphQLClient.request(query, variables);
 };
 
 export {
   graphQLClient,
-  loginQuery,
-  getNotesQuery,
-  updateNoteQuery,
+  SIGNUP_QUERY,
+  LOGIN_QUERY,
+  GET_NOTES_QUERY,
+  UPDATE_NOTE_QUERY,
+  REFRESH_TOKEN_QUERY,
   queryHandler,
 };

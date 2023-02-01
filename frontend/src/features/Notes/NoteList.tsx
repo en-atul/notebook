@@ -2,7 +2,7 @@ import classNames from "classnames";
 import { queryKeys } from "definitions";
 import { CurrentUserType, NoteType } from "interfaces";
 import { useQuery } from "react-query";
-import { queryHandler, getNotesQuery } from "services";
+import { queryHandler, GET_NOTES_QUERY, REFRESH_TOKEN_QUERY } from "services";
 import { queryClient } from "utils";
 
 export function NoteList() {
@@ -10,13 +10,31 @@ export function NoteList() {
   const notes = queryClient.getQueryData<NoteType[]>(queryKeys.notes);
   const { data: selectedNote } = useQuery<NoteType>(queryKeys.selectedNote);
 
-  const { isLoading, isError } = useQuery(
+  const { isLoading, isError, refetch } = useQuery(
     queryKeys.notes,
-    () => queryHandler(getNotesQuery),
+    () => queryHandler(GET_NOTES_QUERY),
     {
       onSuccess: (data) => {
         if (data?.getNotes)
           queryClient.setQueryData(queryKeys.notes, data.getNotes);
+      },
+      onError: (error: any) => {
+        error.response.errors.forEach(async (err: any) => {
+          if (err.message.includes("Unauthorized")) {
+            try {
+              const tokens = await queryHandler(REFRESH_TOKEN_QUERY);
+              if (tokens?.refreshToken)
+                queryClient.setQueryData(queryKeys.auth, (old: any) => ({
+                  ...old,
+                  ...tokens.refreshToken,
+                }));
+              refetch();
+            } catch (error) {
+              // console.log("errrrr", error);
+              queryClient.clear();
+            }
+          }
+        });
       },
     }
   );
@@ -70,7 +88,9 @@ export function NoteList() {
               />
             ))
         ) : isError ? (
-          <p className="p-5 mx-auto font-light text-gray-600">something went wrong!</p>
+          <p className="p-5 mx-auto font-light text-gray-600">
+            something went wrong!
+          </p>
         ) : null}
       </div>
     </section>

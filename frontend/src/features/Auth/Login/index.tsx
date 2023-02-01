@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import * as Yup from "yup";
 import { useMutation } from "react-query";
 import { queryClient } from "utils";
-import { queryHandler, loginQuery } from "services";
+import { queryHandler, LOGIN_QUERY } from "services";
 
 export default function Login() {
   const {
@@ -26,7 +26,7 @@ export default function Login() {
   };
 
   const { mutate, isLoading } = useMutation(
-    async () => queryHandler(loginQuery, queryVariables),
+    async () => queryHandler(LOGIN_QUERY, queryVariables),
     {
       onSuccess: (data) => {
         if (data?.login) {

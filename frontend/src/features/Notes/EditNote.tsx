@@ -3,7 +3,7 @@ import { NoteType } from "interfaces";
 import { useMutation, useQuery } from "react-query";
 import debounce from "lodash.debounce";
 import { useEffect, useState } from "react";
-import { queryHandler, updateNoteQuery } from "services";
+import { queryHandler, UPDATE_NOTE_QUERY } from "services";
 import { queryClient } from "utils";
 
 export function CreateEditNote() {
@@ -19,7 +19,7 @@ export function CreateEditNote() {
   };
 
   const { mutate } = useMutation(
-    async () => queryHandler(updateNoteQuery, queryVariables),
+    async () => queryHandler(UPDATE_NOTE_QUERY, queryVariables),
     {
       onMutate: async (updatedData: NoteType) => {
         const previousNotes = queryClient.getQueryData<NoteType[]>(
@@ -43,6 +43,7 @@ export function CreateEditNote() {
       },
       onError: (err: any) => {
         const errMessage = err?.response?.errors[0]?.message;
+        console.log(errMessage);
       },
     }
   );
@@ -56,7 +57,7 @@ export function CreateEditNote() {
     if (selectedNote) setValue(selectedNote);
   }, [selectedNote]);
 
-  return (
+  return selectedNote?.id ? (
     <section className="col-span-10 h-full flex flex-col p-10">
       <input
         name="title"
@@ -78,5 +79,5 @@ export function CreateEditNote() {
         className="focus:outline-none p-4 bg-transparent"
       />
     </section>
-  );
+  ) : null;
 }
