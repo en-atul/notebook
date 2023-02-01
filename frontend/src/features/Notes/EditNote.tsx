@@ -76,7 +76,7 @@ export function CreateEditNote() {
           setValue({ ...value, content: e.target.value } as any);
           autoSave(e);
         }}
-        className="focus:outline-none p-4 bg-transparent"
+        className="focus:outline-none p-4 bg-transparent resize-none"
       />
     </section>
   ) : null;

@@ -4,8 +4,36 @@ import { CurrentUserType, NoteType } from "interfaces";
 import { useQuery } from "react-query";
 import { queryHandler, GET_NOTES_QUERY, REFRESH_TOKEN_QUERY } from "services";
 import { queryClient } from "utils";
+//@ts-ignore
+import ContextMenu from "@agjs/react-right-click-menu";
+import { useRef, useState } from "react";
+
+const ActionPopup = ({ showLogout }: { showLogout: boolean }) => (
+  <div
+    style={{ margin: 0, padding: 0 }}
+    className="w-40 rounded-md border bg-white shadow-md overflow-hidden"
+  >
+    <ul className="text-sm">
+      <li className="h-10 p-3 hover:bg-gray-100">New Note</li>
+
+      {showLogout ? (
+        <li className="h-10 p-3 hover:bg-gray-100">Logout</li>
+      ) : (
+        <>
+          <li className="h-10 p-3 hover:bg-gray-100">Duplicate Note</li>
+          <li className="h-10 p-3 hover:bg-gray-100">Delete Note</li>
+        </>
+      )}
+    </ul>
+  </div>
+);
 
 export function NoteList() {
+  const [showLogout, setShowLogout] = useState(true);
+
+  const [isMenuShown, setIsMenuShown] = useState(false);
+  const ref = useRef(null);
+
   const user = queryClient.getQueryData<CurrentUserType>(queryKeys.auth);
   const notes = queryClient.getQueryData<NoteType[]>(queryKeys.notes);
   const { data: selectedNote } = useQuery<NoteType>(queryKeys.selectedNote);
@@ -43,9 +71,18 @@ export function NoteList() {
     queryClient.setQueryData(queryKeys.selectedNote, note);
   };
 
+  const toggleLogoutVisibility = () => {
+    console.log("chgcjh");
+    setShowLogout(!showLogout);
+  };
+
+  console.log("logg", showLogout);
   return (
-    <section className="col-span-2 border-r h-full bg-white">
-      <div className="w-full h-20 border-b flex">
+    <section className="col-span-2 border-r h-full bg-white" ref={ref}>
+      <div
+        className="w-full h-20 border-b flex"
+        onContextMenu={toggleLogoutVisibility}
+      >
         <div className="w-1/4 flex justify-center items-center">
           <div className="uppercase bg-pink-600 bg-opacity-25 w-10 h-10 rounded-full flex justify-center items-center">
             {user?.fullname.charAt(0)}
@@ -62,6 +99,7 @@ export function NoteList() {
             <div
               key={idx}
               onClick={() => setCurrentNote(note)}
+              onContextMenu={() => setCurrentNote(note)}
               className={classNames("my-2", {
                 "bg-violet-50 rounded-md": selectedNote?.id === note.id,
               })}
@@ -93,6 +131,16 @@ export function NoteList() {
           </p>
         ) : null}
       </div>
+
+      <ContextMenu
+        trigger={ref}
+        component={<ActionPopup showLogout={showLogout} />}
+        isOpen={isMenuShown}
+        setIsOpen={(v: boolean) => {
+          setIsMenuShown(v);
+          toggleLogoutVisibility();
+        }}
+      />
     </section>
   );
 }
