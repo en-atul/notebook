@@ -1,3 +1,4 @@
+import { queryKeys } from "definitions";
 import { GraphQLClient, gql } from "graphql-request";
 import { CurrentUserType } from "interfaces";
 import { queryClient } from "utils";
@@ -18,7 +19,7 @@ const loginQuery = gql`
   }
 `;
 
-const notesQuery = gql`
+const getNotesQuery = gql`
   query getNotes {
     getNotes {
       id
@@ -30,8 +31,9 @@ const notesQuery = gql`
 `;
 
 const queryHandler = (query: string, variables?: any) => {
-  const access_token =
-    queryClient.getQueryData<CurrentUserType>("auth")?.access_token;
+  const access_token = queryClient.getQueryData<CurrentUserType>(
+    queryKeys.auth
+  )?.access_token;
 
   if (access_token) {
     graphQLClient.setHeaders({
@@ -44,4 +46,4 @@ const queryHandler = (query: string, variables?: any) => {
     : graphQLClient.request(query);
 };
 
-export { graphQLClient, loginQuery, notesQuery, queryHandler };
+export { graphQLClient, loginQuery, getNotesQuery, queryHandler };

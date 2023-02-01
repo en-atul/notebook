@@ -1,18 +1,20 @@
+import { queryKeys } from "definitions";
 import { CurrentUserType, NoteType } from "interfaces";
 import { useQuery, useQueryClient } from "react-query";
-import { queryHandler, notesQuery } from "services";
+import { queryHandler, getNotesQuery } from "services";
 
 export function NoteList() {
   const queryClient = useQueryClient();
-  const user = queryClient.getQueryData<CurrentUserType>("auth");
-  const notes = queryClient.getQueryData<NoteType>("notes");
+  const user = queryClient.getQueryData<CurrentUserType>(queryKeys.auth);
+  const notes = queryClient.getQueryData<NoteType>(queryKeys.notes);
 
   const { isLoading, isError } = useQuery(
-    "notes",
-    () => queryHandler(notesQuery),
+    queryKeys.notes,
+    () => queryHandler(getNotesQuery),
     {
       onSuccess: (data) => {
-        if (data?.getNotes) queryClient.setQueryData("notes", data.getNotes);
+        if (data?.getNotes)
+          queryClient.setQueryData(queryKeys.notes, data.getNotes);
       },
     }
   );
