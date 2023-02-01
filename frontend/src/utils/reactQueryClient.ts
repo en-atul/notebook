@@ -17,7 +17,7 @@ const localStoragePersistor = createWebStoragePersistor({
   storage: window.localStorage,
 });
 
-const doNotPersistQueries: string[] = [];
+const doNotPersistQueries: string[] = ["notes"];
 
 persistQueryClient({
   queryClient,

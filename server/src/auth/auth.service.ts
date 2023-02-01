@@ -6,6 +6,7 @@ import * as argon from 'argon2';
 import { JwtPayload, Tokens } from './types';
 import { AuthResponse, signupInput, loginInput } from './dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { GraphQLError } from 'graphql';
 
 @Injectable()
 export class AuthService {
@@ -52,13 +53,25 @@ export class AuthService {
       },
     });
 
-    if (!user) throw new ForbiddenException('Access Denied');
+    if (!user)
+      throw new GraphQLError('no user found', {
+        extensions: {
+          code: 400,
+          name: 'email',
+        },
+      });
 
     const passwordMatches = await argon.verify(
       user.password,
       loginInput.password,
     );
-    if (!passwordMatches) throw new ForbiddenException('Access Denied');
+    if (!passwordMatches)
+      throw new GraphQLError('wrong password', {
+        extensions: {
+          code: 400,
+          name: 'password',
+        },
+      });
 
     const tokens = await this.getTokens(user.id, user.email);
     await this.updateRtHash(user.id, tokens.refresh_token);
