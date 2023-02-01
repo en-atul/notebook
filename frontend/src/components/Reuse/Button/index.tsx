@@ -23,7 +23,6 @@ export const Button: FC<Props> = ({
   className,
   onClick = undefined,
   disabled = false,
-  borderRadius = "lg",
   bgColor = "bg-violet-700",
   fontSize = "sm",
   textColor = "white",
@@ -39,9 +38,9 @@ export const Button: FC<Props> = ({
       onClick={onClick}
       disabled={disabled}
       className={classnames(
-        `${className} leading-snug rounded-${borderRadius} ${
-          disabled ? "bg-gray-500" : bgColor
-        } text-${fontSize} text-${
+        `${className} w-full leading-snug rounded-lg ${
+          disabled ? "bg-gray-500" : `${bgColor} hover:bg-violet-800`
+        }  text-${fontSize} text-${
           disabled ? "gray-300" : textColor
         } ${borderWidth} border-${disabled ? "gray-500" : borderColor}`,
         {

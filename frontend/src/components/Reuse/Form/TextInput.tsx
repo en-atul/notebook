@@ -71,14 +71,14 @@ export function TextInput<
       id={id}
       type={type}
       className={classnames(
-        `${className} appearance-none border border-gray-200 placeholder-gray-400 font-light text-sm rounded-md w-full h-10 py-2 pr-3 leading-tight focus:outline-none bg-${bgColor}`,
+        `${className} appearance-none border border-gray-200 placeholder-gray-400 font-light text-sm rounded-md w-full h-10 py-2 pr-3 leading-tight focus:outline-none focus:ring-2 focus:ring-violet-300 focus:border-0 bg-${bgColor}`,
         {
-          "border-red-500": error,
-          "text-red-500": error,
-          "placeholder-red-500": error,
-          "focus:border-red-500": error,
-          "focus:shadow-outline-red": error,
-          "focus:shadow-outline": !error,
+          // "border-red-500": error,
+          // "text-red-500": error,
+          // "placeholder-red-500": error,
+          // "focus:border-red-500": error,
+          // "focus:shadow-outline-red": error,
+          // "focus:shadow-outline": !error,
           "pl-10": !placeholder,
           "pl-4": placeholder,
         }
@@ -106,5 +106,22 @@ export const FormLabel: FC<LabelProps> = ({
         {children}
       </label>
     </section>
+  );
+};
+
+export const FormError: FC<{ id?: string; error?: string }> = ({
+  error,
+  id = "form-error",
+}) => {
+  return (
+    <p
+      id={id}
+      role="alert"
+      className={classnames("mt-2 text-sm text-left text-red-500 font-light", {
+        hidden: !error,
+      })}
+    >
+      {error}
+    </p>
   );
 };
