@@ -1,6 +1,6 @@
 # Notebook
 
-- It's a note-taking app that is built using Nestjs, GraphQL
+- Note-taking app, developed using Nestjs, GraphQL, ReactJS, React-Query
 
 ## backend stack
 
