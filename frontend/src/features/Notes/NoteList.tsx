@@ -1,12 +1,14 @@
+import classNames from "classnames";
 import { queryKeys } from "definitions";
 import { CurrentUserType, NoteType } from "interfaces";
-import { useQuery, useQueryClient } from "react-query";
+import { useQuery } from "react-query";
 import { queryHandler, getNotesQuery } from "services";
+import { queryClient } from "utils";
 
 export function NoteList() {
-  const queryClient = useQueryClient();
   const user = queryClient.getQueryData<CurrentUserType>(queryKeys.auth);
-  const notes = queryClient.getQueryData<NoteType>(queryKeys.notes);
+  const notes = queryClient.getQueryData<NoteType[]>(queryKeys.notes);
+  const { data: selectedNote } = useQuery<NoteType>(queryKeys.selectedNote);
 
   const { isLoading, isError } = useQuery(
     queryKeys.notes,
@@ -18,6 +20,10 @@ export function NoteList() {
       },
     }
   );
+
+  const setCurrentNote = (note: NoteType) => {
+    queryClient.setQueryData(queryKeys.selectedNote, note);
+  };
 
   return (
     <section className="col-span-2 border-r h-full bg-white">
@@ -35,11 +41,23 @@ export function NoteList() {
       <div className="w-full h-[calc(100vh_-_80px)] overflow-y-auto px-2">
         {Array.isArray(notes) && notes.length ? (
           notes.map((note, idx) => (
-            <div key={idx} className="border-b p-3">
-              <p className="capitalize font-medium">{note.title}</p>
-              <p className="capitalize text-xs font-light text-gray-500 mt-2">
-                {note.content}
-              </p>
+            <div
+              key={idx}
+              onClick={() => setCurrentNote(note)}
+              className={classNames("my-2", {
+                "bg-violet-50 rounded-md": selectedNote?.id === note.id,
+              })}
+            >
+              <div
+                className={classNames("p-3 cursor-default", {
+                  "border-b": selectedNote?.id !== note.id,
+                })}
+              >
+                <p className="capitalize font-medium">{note.title}</p>
+                <p className="capitalize text-xs font-light text-gray-500 mt-2">
+                  {note.content}
+                </p>
+              </div>
             </div>
           ))
         ) : isLoading ? (
@@ -48,11 +66,11 @@ export function NoteList() {
             .map((_, idx) => (
               <div
                 key={idx}
-                className="w-full h-16 mb-3 rounded-sm bg-gray-200 animate-pulse"
+                className="w-full h-16 mt-3 rounded-sm bg-gray-200 animate-pulse"
               />
             ))
         ) : isError ? (
-          <p className="p-5 mx-auto text-gray-600">something went wrong!</p>
+          <p className="p-5 mx-auto font-light text-gray-600">something went wrong!</p>
         ) : null}
       </div>
     </section>

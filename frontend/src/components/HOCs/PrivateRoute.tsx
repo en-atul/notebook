@@ -1,8 +1,9 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useQueryClient } from "react-query";
+import { useQuery } from "react-query";
 import { CurrentUserType } from "interfaces";
 import { FC, ReactNode } from "react";
 import { DefaultLayout } from "components";
+import { queryKeys } from "definitions";
 
 export const PrivateRoute: FC<{
   children: ReactNode;
@@ -11,8 +12,7 @@ export const PrivateRoute: FC<{
   }>;
 }> = ({ children, layout: ComponentLayout }) => {
   const Layout = ComponentLayout || DefaultLayout;
-  const queryClient = useQueryClient();
-  const data = queryClient.getQueryData<CurrentUserType>("auth");
+  const { data } = useQuery<CurrentUserType>(queryKeys.auth);
 
   if (!data) {
     return <Navigate to="/login" replace />;

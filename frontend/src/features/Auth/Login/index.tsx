@@ -2,14 +2,13 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { LoginSchema, queryKeys } from "definitions";
 import { Button, FormError, FormLabel, TextInput } from "components";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import * as Yup from "yup";
 import { useMutation } from "react-query";
 import { queryClient } from "utils";
 import { queryHandler, loginQuery } from "services";
 
 export default function Login() {
-  const navigate = useNavigate();
   const {
     handleSubmit,
     register,
@@ -32,7 +31,6 @@ export default function Login() {
       onSuccess: (data) => {
         if (data?.login) {
           queryClient.setQueryData(queryKeys.auth, data.login);
-          navigate("/");
         }
       },
       onError: (err: any) => {

@@ -30,6 +30,17 @@ const getNotesQuery = gql`
   }
 `;
 
+const updateNoteQuery = gql`
+  mutation updateNote($input: noteInput!) {
+    updateNote(noteInput: $input) {
+      id
+      title
+      content
+      createdAt
+    }
+  }
+`;
+
 const queryHandler = (query: string, variables?: any) => {
   const access_token = queryClient.getQueryData<CurrentUserType>(
     queryKeys.auth
@@ -46,4 +57,10 @@ const queryHandler = (query: string, variables?: any) => {
     : graphQLClient.request(query);
 };
 
-export { graphQLClient, loginQuery, getNotesQuery, queryHandler };
+export {
+  graphQLClient,
+  loginQuery,
+  getNotesQuery,
+  updateNoteQuery,
+  queryHandler,
+};
