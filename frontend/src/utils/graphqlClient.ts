@@ -1,5 +1,6 @@
 import {
   ApolloClient,
+  ApolloQueryResult,
   createHttpLink,
   from,
   fromPromise,
@@ -45,30 +46,38 @@ const authLink = setContext((req, { headers }) => {
 });
 
 const getNewToken = () => {
-  return client.query({ query: REFRESH_TOKEN_QUERY }).then((response) => {
-    const data$ = client.cache.readQuery<{ user: CurrentUserType }>({
-      query: USER_QUERY,
-    });
-    client.cache.writeQuery({
-      query: USER_QUERY,
-      data: {
-        user: {
-          ...data$?.user,
-          access_token: response.data?.refreshToken?.access_token,
-          refresh_token: response.data?.refreshToken?.refresh_token,
+  return client.query({ query: REFRESH_TOKEN_QUERY }).then(
+    (
+      response: ApolloQueryResult<{
+        refreshToken: {
+          access_token: string;
+          refresh_token: string;
+        };
+      }>
+    ) => {
+      const data$ = client.cache.readQuery<{ user: CurrentUserType }>({
+        query: USER_QUERY,
+      });
+      client.cache.writeQuery({
+        query: USER_QUERY,
+        data: {
+          user: {
+            ...data$?.user,
+            access_token: response.data?.refreshToken?.access_token,
+            refresh_token: response.data?.refreshToken?.refresh_token,
+          },
         },
-      },
-    });
-    // extract your accessToken from your response data and return it
-    const { access_token } = response.data?.refreshToken;
-    return access_token;
-  });
+      });
+      // extract your accessToken from your response data and return it
+      const { access_token } = response.data?.refreshToken;
+      return access_token;
+    }
+  );
 };
 
 const errorLink = onError(({ graphQLErrors, operation, forward }) => {
   if (graphQLErrors) {
     for (let err of graphQLErrors) {
-      console.log("first", err.extensions.code);
       switch (err.extensions.code) {
         case "UNAUTHENTICATED":
           return fromPromise(

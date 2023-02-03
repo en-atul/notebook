@@ -7,9 +7,8 @@ import {
   SELECT_NOTE_QUERY,
 } from "services";
 //@ts-ignore
-import ContextMenu from "@agjs/react-right-click-menu";
+import ContextMenu from "components/Reuse/ContextMenu";
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery } from "@apollo/client";
 import { client } from "utils";
 
@@ -20,7 +19,6 @@ const ActionPopup = ({
   showLogout: boolean;
   toggleMenu: () => void;
 }) => {
-  const navigate = useNavigate();
   const createNoteVariables = {
     input: {
       title: "",
@@ -163,8 +161,8 @@ export function NoteList() {
         notes.getNotes &&
         Array.isArray(notes?.getNotes) &&
         notes?.getNotes.length ? (
-          notes?.getNotes
-            // .sort((a, b) => Number(b.updatedAt) - Number(a.updatedAt))
+          [...notes?.getNotes]
+            .sort((a, b) => Number(b.updatedAt) - Number(a.updatedAt))
             .map((note, idx) => (
               <div
                 key={idx}
