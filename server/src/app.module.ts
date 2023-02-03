@@ -19,6 +19,9 @@ import { NotesModule } from './notes/notes.module';
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       installSubscriptionHandlers: true,
       subscriptions: {
+        'graphql-ws': {
+          path: '/subscriptions',
+        },
         'subscriptions-transport-ws': {
           onConnect: (connectionParams) => {
             const authToken = connectionParams['Authorization'];
@@ -32,6 +35,23 @@ import { NotesModule } from './notes/notes.module';
           },
         },
       },
+      context: ({ extra, connectionParams }) => {
+        /**
+         * this check helps to set the `req` object for ("graphql-ws" subscription) passport-jwt authorization
+         */
+        if (extra?.request?.url === '/subscriptions') {
+          const authToken = connectionParams['Authorization'];
+          return {
+            req: {
+              headers: {
+                authorization: authToken,
+              },
+            },
+          };
+        }
+      },
+      debug: process.env.NODE_ENV === 'development',
+      playground: process.env.NODE_ENV === 'development',
     }),
     AuthModule,
     PrismaModule,
