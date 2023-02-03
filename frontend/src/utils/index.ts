@@ -1,1 +1,1 @@
-export * from "./reactQueryClient";
+export * from "./graphqlClient";

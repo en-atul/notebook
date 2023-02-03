@@ -53,4 +53,21 @@ export class NotesService {
 
     return note;
   }
+
+  async delete(userId: string, noteId: string): Promise<Note> {
+    const note = await this.prisma.note
+      .delete({
+        where: {
+          id_belongsToId: {
+            id: noteId,
+            belongsToId: userId,
+          },
+        },
+      })
+      .catch((error) => {
+        throw error;
+      });
+
+    return note;
+  }
 }

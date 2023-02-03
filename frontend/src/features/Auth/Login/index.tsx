@@ -1,12 +1,11 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { LoginSchema, queryKeys } from "definitions";
+import { LoginSchema } from "definitions";
 import { Button, FormError, FormLabel, TextInput } from "components";
 import { Link } from "react-router-dom";
 import * as Yup from "yup";
-import { useMutation } from "react-query";
-import { queryClient } from "utils";
-import { queryHandler, LOGIN_QUERY } from "services";
+import {  LOGIN_QUERY, USER_QUERY } from "services";
+import { useMutation } from "@apollo/client";
 
 export default function Login() {
   const {
@@ -21,31 +20,36 @@ export default function Login() {
     resolver: yupResolver(LoginSchema),
   });
 
-  const queryVariables = {
-    input: watch(),
-  };
+ 
+  // {
+  //   onSuccess: (data) => {
+  //     if (data?.login) {
+  //       queryClient.setQueryData(queryKeys.auth, data.login);
+  //     }
+  //   },
+  //   onError: (err: any) => {
+  //     const errMessage = err?.response?.errors[0]?.message;
+  //     const fieldName = err?.response?.errors[0]?.extensions?.name;
 
-  const { mutate, isLoading } = useMutation(
-    async () => queryHandler(LOGIN_QUERY, queryVariables),
-    {
-      onSuccess: (data) => {
-        if (data?.login) {
-          queryClient.setQueryData(queryKeys.auth, data.login);
-        }
-      },
-      onError: (err: any) => {
-        const errMessage = err?.response?.errors[0]?.message;
-        const fieldName = err?.response?.errors[0]?.extensions?.name;
-
-        if (["email", "password"].includes(fieldName)) {
-          setError(fieldName, { type: "manual", message: errMessage });
-        } else alert(errMessage);
-      },
-    }
-  );
+  //     if (["email", "password"].includes(fieldName)) {
+  //       setError(fieldName, { type: "manual", message: errMessage });
+  //     } else alert(errMessage);
+  //   },
+  // }
+  const [login, { loading }] = useMutation(LOGIN_QUERY, {
+    onError(error, clientOptions) {
+      console.log("errrrr", error);
+    },
+    update(cache, { data }) {
+      cache.writeQuery({
+        query: USER_QUERY,
+        data: { user: data.login },
+      });
+    },
+  });
 
   const submit = (values: Yup.InferType<typeof LoginSchema>) => {
-    mutate();
+    login({ variables: { input: values } });
   };
 
   return (
@@ -80,7 +84,7 @@ export default function Login() {
           <FormError id="password" error={errors?.password?.message} />
         </article>
 
-        <Button className="py-2.5" type="submit" isSubmitting={isLoading}>
+        <Button className="py-2.5" type="submit" isSubmitting={loading}>
           Sign In
         </Button>
       </form>

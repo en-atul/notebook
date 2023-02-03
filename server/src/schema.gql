@@ -35,6 +35,7 @@ type Query {
 type Mutation {
   createNote(noteInput: noteInput!): NoteResponse!
   updateNote(noteInput: noteInput!): NoteResponse!
+  deleteNote(noteInput: noteInput!): NoteResponse!
   signup(signupInput: signupInput!): AuthResponse!
   login(loginInput: loginInput!): AuthResponse!
 }

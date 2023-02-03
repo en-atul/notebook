@@ -3,12 +3,14 @@ import { PrivateRoutes } from "./privateRoutes";
 import { PublicRoutes } from "./publicRoutes";
 import NoMatchPage from "app/404Page";
 import { Navigate } from "react-router-dom";
-import { useQueryClient } from "react-query";
 import { CurrentUserType } from "interfaces";
+import { USER_QUERY } from "services";
+import { useQuery } from "@apollo/client";
 
 export const AllRoutes = () => {
-  const queryClient = useQueryClient();
-  const data = queryClient.getQueryData<CurrentUserType>("auth");
+  const { data } = useQuery<{ user: CurrentUserType }>(USER_QUERY, {
+    fetchPolicy: "cache-only",
+  });
 
   return (
     <Router>
@@ -17,7 +19,7 @@ export const AllRoutes = () => {
         {PrivateRoutes()}
         <Route
           path="/"
-          element={<Navigate to={data ? "/" : "/signup"} replace />}
+          element={<Navigate to={data?.user ? "/" : "/signup"} replace />}
         />
         <Route path="*" element={<NoMatchPage />} />
       </Routes>

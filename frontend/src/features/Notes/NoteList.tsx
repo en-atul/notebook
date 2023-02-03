@@ -1,17 +1,17 @@
 import classNames from "classnames";
-import { queryKeys } from "definitions";
 import { CurrentUserType, NoteType } from "interfaces";
-import { useMutation, useQuery } from "react-query";
 import {
-  queryHandler,
   CREATE_NOTE_QUERY,
   GET_NOTES_QUERY,
-  REFRESH_TOKEN_QUERY,
+  USER_QUERY,
+  SELECT_NOTE_QUERY,
 } from "services";
-import { queryClient } from "utils";
 //@ts-ignore
 import ContextMenu from "@agjs/react-right-click-menu";
 import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useMutation, useQuery } from "@apollo/client";
+import { client } from "utils";
 
 const ActionPopup = ({
   showLogout,
@@ -20,6 +20,7 @@ const ActionPopup = ({
   showLogout: boolean;
   toggleMenu: () => void;
 }) => {
+  const navigate = useNavigate();
   const createNoteVariables = {
     input: {
       title: "",
@@ -27,36 +28,48 @@ const ActionPopup = ({
     },
   };
 
-  const { mutate } = useMutation(
-    async () => queryHandler(CREATE_NOTE_QUERY, createNoteVariables),
-    {
-      onMutate: () => {
-        toggleMenu();
-      },
-      onSuccess: (data) => {
-        if (data?.createNote) {
-          const previousNotes = queryClient.getQueryData<NoteType[]>(
-            queryKeys.notes
-          );
-          if (Array.isArray(previousNotes) && previousNotes.length)
-            queryClient.setQueryData(queryKeys.notes, () => [
-              ...previousNotes,
-              data.createNote,
-            ]);
-          else
-            queryClient.setQueryData(queryKeys.notes, () => [data.createNote]);
+  const [createNote] = useMutation(CREATE_NOTE_QUERY, {
+    update(cache, { data }) {
+      const notes = cache.readQuery<{ getNotes: NoteType[] }>({
+        query: GET_NOTES_QUERY,
+      });
 
-          queryClient.setQueryData(queryKeys.selectedNote, data.createNote);
-        }
-      },
-      onError: (err: any) => {
-        const errMessage = err?.response?.errors[0]?.message;
-        console.log(errMessage);
-      },
-    }
-  );
+      const res = data!.createNote;
+      const pyd = {
+        res,
+        ...notes?.getNotes,
+      };
 
-  const onLogout = () => queryClient.clear();
+      cache.writeQuery({
+        query: GET_NOTES_QUERY,
+        data: {
+          getNotes: pyd,
+        },
+      });
+
+      cache.writeQuery({
+        query: SELECT_NOTE_QUERY,
+        data: {
+          selectNote: res,
+        },
+      });
+      toggleMenu();
+    },
+
+    onError: (err: any) => {
+      const errMessage = err?.response?.errors[0]?.message;
+      console.log(errMessage);
+    },
+  });
+
+  const onLogout = () => {
+    toggleMenu();
+    client.clearStore();
+    client.cache.writeQuery({
+      query: USER_QUERY,
+      data: { user: null },
+    });
+  };
 
   return (
     <div
@@ -67,7 +80,7 @@ const ActionPopup = ({
         <li
           className="h-10 p-3 hover:bg-gray-100"
           role="button"
-          onClick={() => mutate()}
+          onClick={() => createNote({ variables: createNoteVariables })}
         >
           New Note
         </li>
@@ -96,42 +109,27 @@ export function NoteList() {
 
   const [isMenuShown, setIsMenuShown] = useState(false);
   const ref = useRef(null);
+  const { data } = useQuery<{ user: CurrentUserType }>(USER_QUERY, {
+    fetchPolicy: "cache-only",
+  });
+  const { data: notes } = useQuery<{ getNotes: NoteType[] }>(GET_NOTES_QUERY, {
+    fetchPolicy: "cache-and-network",
+  });
 
-  const user = queryClient.getQueryData<CurrentUserType>(queryKeys.auth);
-  const notes = queryClient.getQueryData<NoteType[]>(queryKeys.notes);
-  const { data: selectedNote } = useQuery<NoteType>(queryKeys.selectedNote);
-
-  const { isLoading, isError, refetch } = useQuery(
-    queryKeys.notes,
-    () => queryHandler(GET_NOTES_QUERY),
+  const { data: selectedNote } = useQuery<{ selectNote: NoteType }>(
+    SELECT_NOTE_QUERY,
     {
-      onSuccess: (data) => {
-        if (data?.getNotes)
-          queryClient.setQueryData(queryKeys.notes, data.getNotes);
-      },
-      onError: (error: any) => {
-        error.response.errors.forEach(async (err: any) => {
-          if (err.message.includes("Unauthorized")) {
-            try {
-              const tokens = await queryHandler(REFRESH_TOKEN_QUERY);
-              if (tokens?.refreshToken)
-                queryClient.setQueryData(queryKeys.auth, (old: any) => ({
-                  ...old,
-                  ...tokens.refreshToken,
-                }));
-              refetch();
-            } catch (error) {
-              // console.log("errrrr", error);
-              queryClient.clear();
-            }
-          }
-        });
-      },
+      fetchPolicy: "cache-only",
     }
   );
 
   const setCurrentNote = (note: NoteType) => {
-    queryClient.setQueryData(queryKeys.selectedNote, note);
+    client.cache.writeQuery({
+      query: SELECT_NOTE_QUERY,
+      data: {
+        selectNote: note,
+      },
+    });
   };
 
   const toggleLogoutVisibility = () => {
@@ -150,30 +148,36 @@ export function NoteList() {
       >
         <div className="w-1/4 flex justify-center items-center">
           <div className="uppercase bg-pink-600 bg-opacity-25 w-10 h-10 rounded-full flex justify-center items-center">
-            {user?.fullname.charAt(0)}
+            {data?.user?.fullname.charAt(0)}
           </div>
         </div>
         <div className="w-3/4 flex flex-col justify-center">
-          <p className="capitalize text-sm">{user?.fullname}</p>
-          <p className="text-sm font-light text-gray-500">{user?.email}</p>
+          <p className="capitalize text-sm">{data?.user?.fullname}</p>
+          <p className="text-sm font-light text-gray-500">
+            {data?.user?.email}
+          </p>
         </div>
       </div>
       <div className="w-full h-[calc(100vh_-_80px)] overflow-y-auto px-2">
-        {Array.isArray(notes) && notes.length ? (
-          notes
-            .sort((a, b) => Number(b.updatedAt) - Number(a.updatedAt))
+        {notes &&
+        notes.getNotes &&
+        Array.isArray(notes?.getNotes) &&
+        notes?.getNotes.length ? (
+          notes?.getNotes
+            // .sort((a, b) => Number(b.updatedAt) - Number(a.updatedAt))
             .map((note, idx) => (
               <div
                 key={idx}
                 onClick={() => setCurrentNote(note)}
                 onContextMenu={() => setCurrentNote(note)}
                 className={classNames("my-2", {
-                  "bg-violet-50 rounded-md": selectedNote?.id === note.id,
+                  "bg-violet-50 rounded-md":
+                    selectedNote?.selectNote?.id === note.id,
                 })}
               >
                 <div
                   className={classNames("p-3 cursor-default", {
-                    "border-b": selectedNote?.id !== note.id,
+                    "border-b": selectedNote?.selectNote?.id !== note.id,
                   })}
                 >
                   <p className="capitalize font-medium">
@@ -185,7 +189,7 @@ export function NoteList() {
                 </div>
               </div>
             ))
-        ) : isLoading ? (
+        ) : false ? (
           Array(7)
             .fill({})
             .map((_, idx) => (
@@ -194,7 +198,7 @@ export function NoteList() {
                 className="w-full h-16 mt-3 rounded-sm bg-gray-200 animate-pulse"
               />
             ))
-        ) : isError ? (
+        ) : false ? (
           <p className="p-5 mx-auto font-light text-gray-600">
             something went wrong!
           </p>

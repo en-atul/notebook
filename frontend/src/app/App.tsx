@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet";
-import { AllRoutes } from "./routes/Routes";
+import { AllRoutes } from "./routes/routes";
 import { ErrorBoundary } from "./ErrorPage";
 
 const App = () => {

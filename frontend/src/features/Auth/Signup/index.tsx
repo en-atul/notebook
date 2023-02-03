@@ -1,12 +1,10 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { queryKeys, RegisterSchema } from "definitions";
+import {  RegisterSchema } from "definitions";
 import { Button, FormError, FormLabel, TextInput } from "components";
 import { Link } from "react-router-dom";
 import * as Yup from "yup";
-import { useMutation } from "react-query";
-import { queryHandler, SIGNUP_QUERY } from "services";
-import { queryClient } from "utils";
+
 
 export default function Signup() {
   const {
@@ -25,27 +23,27 @@ export default function Signup() {
     input: watch(),
   };
 
-  const { mutate, isLoading } = useMutation(
-    async () => queryHandler(SIGNUP_QUERY, queryVariables),
-    {
-      onSuccess: (data) => {
-        if (data?.signup) {
-          queryClient.setQueryData(queryKeys.auth, data.signup);
-        }
-      },
-      onError: (err: any) => {
-        const errMessage = err?.response?.errors[0]?.message;
-        const fieldName = err?.response?.errors[0]?.extensions?.name;
+  // const { mutate, isLoading } = useMutation(
+  //   async () => queryHandler(SIGNUP_QUERY, queryVariables),
+  //   {
+  //     onSuccess: (data) => {
+  //       if (data?.signup) {
+  //         queryClient.setQueryData(queryKeys.auth, data.signup);
+  //       }
+  //     },
+  //     onError: (err: any) => {
+  //       const errMessage = err?.response?.errors[0]?.message;
+  //       const fieldName = err?.response?.errors[0]?.extensions?.name;
 
-        if (["fullname", "email", "password"].includes(fieldName)) {
-          setError(fieldName, { type: "manual", message: errMessage });
-        } else alert(errMessage);
-      },
-    }
-  );
+  //       if (["fullname", "email", "password"].includes(fieldName)) {
+  //         setError(fieldName, { type: "manual", message: errMessage });
+  //       } else alert(errMessage);
+  //     },
+  //   }
+  // );
 
   const submit = (values: Yup.InferType<typeof RegisterSchema>) => {
-    mutate();
+    // mutate();
   };
 
   return (
@@ -91,7 +89,7 @@ export default function Signup() {
           <FormError id="password" error={errors?.password?.message} />
         </article>
 
-        <Button className="py-2.5" type="submit" isSubmitting={isLoading}>
+        <Button className="py-2.5" type="submit" isSubmitting={false}>
           Sign Up
         </Button>
       </form>

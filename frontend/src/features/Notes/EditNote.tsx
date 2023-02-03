@@ -1,63 +1,75 @@
-import { queryKeys } from "definitions";
+import { useMutation, useQuery } from "@apollo/client";
 import { NoteType } from "interfaces";
-import { useMutation, useQuery } from "react-query";
 import debounce from "lodash.debounce";
 import { useEffect, useState } from "react";
-import { queryHandler, UPDATE_NOTE_QUERY } from "services";
-import { queryClient } from "utils";
+import {
+  GET_NOTES_QUERY,
+  SELECT_NOTE_QUERY,
+  UPDATE_NOTE_QUERY,
+} from "services";
 
 export function CreateEditNote() {
   const [value, setValue] = useState<NoteType>();
-  const { data: selectedNote } = useQuery<NoteType>(queryKeys.selectedNote);
+  const { data } = useQuery<{ selectNote: NoteType }>(SELECT_NOTE_QUERY, {
+    fetchPolicy: "cache-only",
+  });
 
-  const queryVariables = {
-    input: {
-      id: selectedNote?.id,
-      title: value?.title,
-      content: value?.content,
+  const [updateNote] = useMutation(UPDATE_NOTE_QUERY, {
+    update(cache, { data }) {
+      const notes = cache.readQuery<{ getNotes: NoteType[] }>({
+        query: GET_NOTES_QUERY,
+      });
+      const idx = notes?.getNotes.findIndex((n) => n.id === data.id);
+      if (idx !== undefined && idx >= 0) {
+        const cpyNotes = [...notes?.getNotes!];
+        cpyNotes[idx] = {
+          ...cpyNotes[idx],
+          ...data.updateNote,
+        };
+
+        cache.writeQuery({
+          query: GET_NOTES_QUERY,
+          data: {
+            getNotes: cpyNotes,
+          },
+        });
+
+        cache.writeQuery({
+          query: SELECT_NOTE_QUERY,
+          data: {
+            selectNote: data.updateNote,
+          },
+        });
+      }
     },
-  };
-
-  const { mutate } = useMutation(
-    async () => queryHandler(UPDATE_NOTE_QUERY, queryVariables),
-    {
-      onMutate: async (updatedData: NoteType) => {
-        const previousNotes = queryClient.getQueryData<NoteType[]>(
-          queryKeys.notes
-        );
-        if (Array.isArray(previousNotes) && previousNotes.length) {
-          const copyNotes = [...previousNotes];
-          const idx = copyNotes.findIndex((n) => n.id === updatedData.id);
-          copyNotes[idx] = {
-            ...copyNotes[idx],
-            ...updatedData,
-          };
-          queryClient.setQueryData(queryKeys.notes, () => copyNotes);
-        }
-        return { previousNotes };
-      },
-      onSuccess: (data) => {
-        if (data?.updateNote) {
-          queryClient.setQueryData(queryKeys.selectedNote, data.updateNote);
-        }
-      },
-      onError: (err: any) => {
-        const errMessage = err?.response?.errors[0]?.message;
-        console.log(errMessage);
-      },
-    }
-  );
+  });
 
   const autoSave = debounce((e) => {
-    const payload = { ...value, [e.target.name]: e.target.value };
-    mutate(payload as any);
+    const payload = {
+      id: value?.id,
+      title: value?.title,
+      content: value?.content,
+      [e.target.name]: e.target.value,
+    };
+
+    updateNote({
+      variables: { input: payload },
+      // optimisticResponse: {
+      //   __typnename: "Mutation",
+      //   updateNote: {
+      //     __typename: "NoteResponse",
+      //     id: value?.id,
+      //     [e.target.name]: e.target.value,
+      //   },
+      // },
+    });
   }, 1000);
 
   useEffect(() => {
-    if (selectedNote) setValue(selectedNote);
-  }, [selectedNote]);
+    if (data?.selectNote) setValue(data?.selectNote);
+  }, [data?.selectNote]);
 
-  return selectedNote?.id ? (
+  return data?.selectNote?.id ? (
     <section className="col-span-10 h-full flex flex-col p-10">
       <input
         name="title"

@@ -2,9 +2,9 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
-import { QueryClientProvider } from "react-query";
-import { queryClient } from "utils";
-import { ReactQueryDevtools } from "react-query/devtools";
+import { ApolloProvider } from "@apollo/client";
+import { client } from "utils";
+// import { ReactQueryDevtools } from "react-query/devtools";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -14,12 +14,12 @@ const App = require("./app/App").default;
 
 root.render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
+    <ApolloProvider client={client}>
       <App />
-      {process.env.NODE_ENV === "development" ? (
+      {/* {process.env.NODE_ENV === "development" ? (
         <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
-      ) : null}
-    </QueryClientProvider>
+      ) : null} */}
+    </ApolloProvider>
   </React.StrictMode>
 );
 

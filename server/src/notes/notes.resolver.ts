@@ -30,6 +30,15 @@ export class NotesResolver {
     return this.notesService.update(id, rest);
   }
 
+  @Mutation(() => NoteResponse)
+  deleteNote(
+    @GetCurrentUserId() userId: string,
+    @Args('noteInput') noteInput: noteInput,
+  ) {
+    const { id } = noteInput;
+    return this.notesService.delete(userId, id);
+  }
+
   @Subscription(() => NoteResponse)
   noteCreated() {
     return this.pubSub.asyncIterator('noteCreated');
