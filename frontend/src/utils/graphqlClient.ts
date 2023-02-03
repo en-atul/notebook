@@ -5,12 +5,17 @@ import {
   from,
   fromPromise,
   InMemoryCache,
+  split,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { persistCache, LocalStorageWrapper } from "apollo3-cache-persist";
 import { onError } from "@apollo/client/link/error";
+import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
+import { createClient } from "graphql-ws";
+
 import { REFRESH_TOKEN_QUERY, USER_QUERY } from "services";
 import { CurrentUserType } from "interfaces";
+import { getMainDefinition } from "@apollo/client/utilities";
 
 const GRAPHQL_ENDPOINT = "http://localhost:3001/graphql/";
 
@@ -18,32 +23,13 @@ const httpLink = createHttpLink({
   uri: GRAPHQL_ENDPOINT,
 });
 
-const authLink = setContext((req, { headers }) => {
+const getToken = () => {
   const data = client.cache.readQuery<{ user: CurrentUserType }>({
     query: USER_QUERY,
   });
 
-  // return the authorization header for refreshToken query
-  if (req.operationName === "refreshToken")
-    return {
-      headers: {
-        ...headers,
-        authorization: data?.user.refresh_token
-          ? `Bearer ${data?.user.refresh_token}`
-          : "",
-      },
-    };
-
-  // return the headers to the context so httpLink can read them
-  return {
-    headers: {
-      ...headers,
-      authorization: data?.user.access_token
-        ? `Bearer ${data?.user.access_token}`
-        : "",
-    },
-  };
-});
+  return data?.user;
+};
 
 const getNewToken = () => {
   return client.query({ query: REFRESH_TOKEN_QUERY }).then(
@@ -75,14 +61,43 @@ const getNewToken = () => {
   );
 };
 
+const authLink = setContext((req, { headers }) => {
+  const tokens = getToken();
+
+  // return the authorization header for refreshToken query
+  if (req.operationName === "refreshToken")
+    return {
+      headers: {
+        ...headers,
+        authorization: tokens?.refresh_token
+          ? `Bearer ${tokens?.refresh_token}`
+          : "",
+      },
+    };
+
+  // return the headers to the context so httpLink can read them
+  return {
+    headers: {
+      ...headers,
+      authorization: tokens?.access_token
+        ? `Bearer ${tokens?.access_token}`
+        : "",
+    },
+  };
+});
+
 const errorLink = onError(({ graphQLErrors, operation, forward }) => {
   if (graphQLErrors) {
     for (let err of graphQLErrors) {
       switch (err.extensions.code) {
         case "UNAUTHENTICATED":
           return fromPromise(
-            getNewToken().catch((error) => {
-              // Handle token refresh errors e.g clear stored tokens, redirect to login
+            getNewToken().catch(() => {
+              client.clearStore();
+              client.cache.writeQuery({
+                query: USER_QUERY,
+                data: { user: null },
+              });
               return;
             })
           )
@@ -111,8 +126,34 @@ persistCache({
   storage: new LocalStorageWrapper(window.localStorage),
 });
 
+/**
+ * ------- subscriptions -------
+ */
+const wsLink = new GraphQLWsLink(
+  createClient({
+    url: "ws://localhost:3001/subscriptions",
+    connectionParams: {
+      authorization: getToken()?.access_token,
+    },
+  })
+);
+
+const splitLink = split(
+  ({ query }) => {
+    const definition = getMainDefinition(query);
+    return (
+      definition.kind === "OperationDefinition" &&
+      definition.operation === "subscription"
+    );
+  },
+  wsLink,
+  httpLink
+);
+
+/** ---------- */
+
 const client = new ApolloClient({
-  link: from([errorLink, authLink, httpLink]),
+  link: from([errorLink, authLink, httpLink, splitLink]),
   cache,
 });
 
