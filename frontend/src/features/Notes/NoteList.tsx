@@ -1,12 +1,12 @@
 import classNames from "classnames";
 import { CurrentUserType, NoteType } from "interfaces";
 import {
-  CREATE_NOTE_QUERY,
+  CREATE_NOTE_MUTATION,
   GET_NOTES_QUERY,
   USER_QUERY,
   SELECT_NOTE_QUERY,
+  DELETE_NOTE_MUTATION,
 } from "services";
-//@ts-ignore
 import ContextMenu from "components/Reuse/ContextMenu";
 import { useRef, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
@@ -19,6 +19,13 @@ const ActionPopup = ({
   showLogout: boolean;
   toggleMenu: () => void;
 }) => {
+  const { data: noteData } = useQuery<{ selectNote: NoteType }>(
+    SELECT_NOTE_QUERY,
+    {
+      fetchPolicy: "cache-only",
+    }
+  );
+
   const createNoteVariables = {
     input: {
       title: "",
@@ -26,7 +33,7 @@ const ActionPopup = ({
     },
   };
 
-  const [createNote] = useMutation(CREATE_NOTE_QUERY, {
+  const [createNote] = useMutation(CREATE_NOTE_MUTATION, {
     update(cache, { data }) {
       const notes = cache.readQuery<{ getNotes: NoteType[] }>({
         query: GET_NOTES_QUERY,
@@ -49,6 +56,47 @@ const ActionPopup = ({
         query: SELECT_NOTE_QUERY,
         data: {
           selectNote: res,
+        },
+      });
+      toggleMenu();
+    },
+
+    onError: (err: any) => {
+      const errMessage = err?.response?.errors[0]?.message;
+      console.log(errMessage);
+    },
+  });
+
+  const [deleteNote] = useMutation(DELETE_NOTE_MUTATION, {
+    update(cache, { data }) {
+      const allNotes = client.cache.readQuery<{ getNotes: NoteType[] }>({
+        query: GET_NOTES_QUERY,
+      });
+      const areNotesExists =
+        allNotes?.getNotes &&
+        Array.isArray(allNotes.getNotes) &&
+        allNotes.getNotes.length > 0;
+
+      const idx = allNotes?.getNotes.findIndex(
+        (note) => note.id === data.deleteNote.id
+      );
+
+      if (typeof idx === "number" && idx >= 0 && areNotesExists) {
+        const cpyNotes = [...allNotes.getNotes];
+        cpyNotes.splice(idx, 1);
+
+        client.cache.writeQuery({
+          query: GET_NOTES_QUERY,
+          data: {
+            getNotes: cpyNotes,
+          },
+        });
+      }
+
+      cache.writeQuery({
+        query: SELECT_NOTE_QUERY,
+        data: {
+          selectNote: null,
         },
       });
       toggleMenu();
@@ -94,7 +142,17 @@ const ActionPopup = ({
         ) : (
           <>
             <li className="h-10 p-3 hover:bg-gray-100">Duplicate Note</li>
-            <li className="h-10 p-3 hover:bg-gray-100">Delete Note</li>
+            <li
+              className="h-10 p-3 hover:bg-gray-100"
+              role="button"
+              onClick={() =>
+                deleteNote({
+                  variables: { input: { id: noteData?.selectNote.id } },
+                })
+              }
+            >
+              Delete Note
+            </li>
           </>
         )}
       </ul>

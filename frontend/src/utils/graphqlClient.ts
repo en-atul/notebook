@@ -18,18 +18,25 @@ import { CurrentUserType } from "interfaces";
 import { getMainDefinition } from "@apollo/client/utilities";
 
 const GRAPHQL_ENDPOINT = "http://localhost:3001/graphql/";
+const GRAPHQL_WS_ENDPOINT = "ws://localhost:3001/subscriptions";
 
 const httpLink = createHttpLink({
   uri: GRAPHQL_ENDPOINT,
 });
 
-const getToken = () => {
+const cache = new InMemoryCache();
+persistCache({
+  cache,
+  storage: new LocalStorageWrapper(window.localStorage),
+});
+
+function getToken() {
   const data = client.cache.readQuery<{ user: CurrentUserType }>({
     query: USER_QUERY,
   });
 
   return data?.user;
-};
+}
 
 const getNewToken = () => {
   return client.query({ query: REFRESH_TOKEN_QUERY }).then(
@@ -61,6 +68,26 @@ const getNewToken = () => {
   );
 };
 
+/**
+ * ------- subscriptions -------
+ */
+const wsLink = new GraphQLWsLink(
+  createClient({
+    url: GRAPHQL_WS_ENDPOINT,
+    connectionParams: async () => {
+      const token = getToken();
+      if (token?.access_token) {
+        return {
+          Authorization: `Bearer ${token.access_token}`,
+        };
+      }
+      return {};
+    },
+    shouldRetry: () => true,
+    retryAttempts: 5,
+  })
+);
+
 const authLink = setContext((req, { headers }) => {
   const tokens = getToken();
 
@@ -89,7 +116,7 @@ const authLink = setContext((req, { headers }) => {
 const errorLink = onError(({ graphQLErrors, operation, forward }) => {
   if (graphQLErrors) {
     for (let err of graphQLErrors) {
-      switch (err.extensions.code) {
+      switch (err.extensions?.code) {
         case "UNAUTHENTICATED":
           return fromPromise(
             getNewToken().catch(() => {
@@ -120,24 +147,6 @@ const errorLink = onError(({ graphQLErrors, operation, forward }) => {
   }
 });
 
-const cache = new InMemoryCache();
-persistCache({
-  cache,
-  storage: new LocalStorageWrapper(window.localStorage),
-});
-
-/**
- * ------- subscriptions -------
- */
-const wsLink = new GraphQLWsLink(
-  createClient({
-    url: "ws://localhost:3001/subscriptions",
-    connectionParams: {
-      authorization: getToken()?.access_token,
-    },
-  })
-);
-
 const splitLink = split(
   ({ query }) => {
     const definition = getMainDefinition(query);
@@ -153,8 +162,9 @@ const splitLink = split(
 /** ---------- */
 
 const client = new ApolloClient({
-  link: from([errorLink, authLink, httpLink, splitLink]),
+  link: from([errorLink, authLink, splitLink]),
   cache,
+  connectToDevTools: true,
 });
 
 export { GRAPHQL_ENDPOINT, client };

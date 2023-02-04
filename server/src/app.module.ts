@@ -39,7 +39,10 @@ import { NotesModule } from './notes/notes.module';
         /**
          * this check helps to set the `req` object for ("graphql-ws" subscription) passport-jwt authorization
          */
-        if (extra?.request?.url === '/subscriptions') {
+        if (
+          extra?.request?.url === '/subscriptions' &&
+          connectionParams['Authorization']
+        ) {
           const authToken = connectionParams['Authorization'];
           return {
             req: {

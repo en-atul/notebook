@@ -92,6 +92,7 @@ const useContextMenu = (
       if (trigger?.current)
         trigger.current.removeEventListener("contextmenu", handleContextMenu);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   });
 
   return { xMouse, yMouse, isOpen };

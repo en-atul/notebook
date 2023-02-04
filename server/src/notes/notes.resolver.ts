@@ -43,4 +43,14 @@ export class NotesResolver {
   noteCreated() {
     return this.pubSub.asyncIterator('noteCreated');
   }
+
+  @Subscription(() => NoteResponse)
+  noteUpdated() {
+    return this.pubSub.asyncIterator('noteUpdated');
+  }
+
+  @Subscription(() => NoteResponse)
+  noteDeleted() {
+    return this.pubSub.asyncIterator('noteDeleted');
+  }
 }

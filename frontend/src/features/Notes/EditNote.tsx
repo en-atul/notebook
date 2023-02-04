@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import {
   GET_NOTES_QUERY,
   SELECT_NOTE_QUERY,
-  UPDATE_NOTE_QUERY,
+  UPDATE_NOTE_MUTATION,
 } from "services";
 
 export function CreateEditNote() {
@@ -14,7 +14,7 @@ export function CreateEditNote() {
     fetchPolicy: "cache-only",
   });
 
-  const [updateNote] = useMutation(UPDATE_NOTE_QUERY, {
+  const [updateNote] = useMutation(UPDATE_NOTE_MUTATION, {
     update(cache, { data }) {
       const notes = cache.readQuery<{ getNotes: NoteType[] }>({
         query: GET_NOTES_QUERY,

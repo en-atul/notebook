@@ -1,17 +1,17 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import {  RegisterSchema } from "definitions";
+import { RegisterSchema } from "definitions";
 import { Button, FormError, FormLabel, TextInput } from "components";
 import { Link } from "react-router-dom";
 import * as Yup from "yup";
-
+import { useMutation } from "@apollo/client";
+import { SIGNUP_MUTATION, USER_QUERY } from "services";
 
 export default function Signup() {
   const {
     handleSubmit,
     register,
     formState: { errors },
-    watch,
     setError,
   } = useForm({
     mode: "onSubmit",
@@ -19,31 +19,26 @@ export default function Signup() {
     resolver: yupResolver(RegisterSchema),
   });
 
-  const queryVariables = {
-    input: watch(),
-  };
+  const [signup, { loading }] = useMutation(SIGNUP_MUTATION, {
+    onError(error, clientOptions) {
+      console.log("errrrr");
+      //       const errMessage = err?.response?.errors[0]?.message;
+      //       const fieldName = err?.response?.errors[0]?.extensions?.name;
 
-  // const { mutate, isLoading } = useMutation(
-  //   async () => queryHandler(SIGNUP_QUERY, queryVariables),
-  //   {
-  //     onSuccess: (data) => {
-  //       if (data?.signup) {
-  //         queryClient.setQueryData(queryKeys.auth, data.signup);
-  //       }
-  //     },
-  //     onError: (err: any) => {
-  //       const errMessage = err?.response?.errors[0]?.message;
-  //       const fieldName = err?.response?.errors[0]?.extensions?.name;
-
-  //       if (["fullname", "email", "password"].includes(fieldName)) {
-  //         setError(fieldName, { type: "manual", message: errMessage });
-  //       } else alert(errMessage);
-  //     },
-  //   }
-  // );
+      //       if (["fullname", "email", "password"].includes(fieldName)) {
+      //         setError(fieldName, { type: "manual", message: errMessage });
+      //       } else alert(errMessage);
+    },
+    update(cache, { data }) {
+      cache.writeQuery({
+        query: USER_QUERY,
+        data: { user: data.signup },
+      });
+    },
+  });
 
   const submit = (values: Yup.InferType<typeof RegisterSchema>) => {
-    // mutate();
+    signup({ variables: values });
   };
 
   return (
@@ -89,7 +84,7 @@ export default function Signup() {
           <FormError id="password" error={errors?.password?.message} />
         </article>
 
-        <Button className="py-2.5" type="submit" isSubmitting={false}>
+        <Button className="py-2.5" type="submit" isSubmitting={loading}>
           Sign Up
         </Button>
       </form>

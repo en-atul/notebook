@@ -50,7 +50,7 @@ export class NotesService {
       .catch((error) => {
         throw error;
       });
-
+    this.pubSub.publish('noteUpdated', { noteUpdated: note });
     return note;
   }
 
@@ -67,7 +67,7 @@ export class NotesService {
       .catch((error) => {
         throw error;
       });
-
+    this.pubSub.publish('noteDeleted', { noteDeleted: note });
     return note;
   }
 }

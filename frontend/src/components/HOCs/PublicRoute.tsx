@@ -2,7 +2,6 @@ import { Navigate, Outlet } from "react-router-dom";
 import { DefaultLayout } from "components";
 import { CurrentUserType } from "interfaces";
 import { FC, ReactNode } from "react";
-import { queryKeys } from "definitions";
 import { USER_QUERY } from "services";
 import { useQuery } from "@apollo/client";
 

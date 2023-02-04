@@ -75,4 +75,6 @@ input loginInput {
 
 type Subscription {
   noteCreated: NoteResponse!
+  noteUpdated: NoteResponse!
+  noteDeleted: NoteResponse!
 }

@@ -4,7 +4,7 @@ import { LoginSchema } from "definitions";
 import { Button, FormError, FormLabel, TextInput } from "components";
 import { Link } from "react-router-dom";
 import * as Yup from "yup";
-import {  LOGIN_QUERY, USER_QUERY } from "services";
+import { LOGIN_MUTATION, USER_QUERY } from "services";
 import { useMutation } from "@apollo/client";
 
 export default function Login() {
@@ -12,7 +12,6 @@ export default function Login() {
     handleSubmit,
     register,
     formState: { errors },
-    watch,
     setError,
   } = useForm({
     mode: "onSubmit",
@@ -20,25 +19,16 @@ export default function Login() {
     resolver: yupResolver(LoginSchema),
   });
 
- 
-  // {
-  //   onSuccess: (data) => {
-  //     if (data?.login) {
-  //       queryClient.setQueryData(queryKeys.auth, data.login);
-  //     }
-  //   },
-  //   onError: (err: any) => {
-  //     const errMessage = err?.response?.errors[0]?.message;
-  //     const fieldName = err?.response?.errors[0]?.extensions?.name;
+  const [login, { loading }] = useMutation(LOGIN_MUTATION, {
+    onError(error) {
+      const errMessage = error.graphQLErrors[0]?.message;
+      const fieldName = error.graphQLErrors[0]?.extensions?.name as
+        | "email"
+        | "password";
 
-  //     if (["email", "password"].includes(fieldName)) {
-  //       setError(fieldName, { type: "manual", message: errMessage });
-  //     } else alert(errMessage);
-  //   },
-  // }
-  const [login, { loading }] = useMutation(LOGIN_QUERY, {
-    onError(error, clientOptions) {
-      console.log("errrrr", error);
+      if (["email", "password"].includes(fieldName)) {
+        setError(fieldName, { type: "manual", message: errMessage });
+      } else alert(errMessage);
     },
     update(cache, { data }) {
       cache.writeQuery({
