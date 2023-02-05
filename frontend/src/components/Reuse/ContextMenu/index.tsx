@@ -70,7 +70,7 @@ const useContextMenu = (
 
       isWithinBoundary ? setIsOpen(true) : setIsOpen(false);
     },
-    [setXMouse, setYMouse, trigger]
+    [setXMouse, setYMouse, trigger, setIsOpen]
   );
 
   const handleClick = useCallback(
@@ -79,20 +79,21 @@ const useContextMenu = (
         isOpen && setIsOpen(false);
       }
     },
-    [isOpen, isOpenAfterInteraction]
+    [isOpen, isOpenAfterInteraction, setIsOpen]
   );
 
   useEffect(() => {
+    const ctxTrigger = trigger.current;
     document.addEventListener("click", handleClick);
-    trigger.current.addEventListener("contextmenu", handleContextMenu);
+    ctxTrigger.addEventListener("contextmenu", handleContextMenu);
+
     return () => {
       if (typeof document?.removeEventListener === "function")
         document.removeEventListener("click", handleClick);
 
-      if (trigger?.current)
-        trigger.current.removeEventListener("contextmenu", handleContextMenu);
+      if (ctxTrigger)
+        ctxTrigger.removeEventListener("contextmenu", handleContextMenu);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   });
 
   return { xMouse, yMouse, isOpen };

@@ -118,13 +118,10 @@ const ActionPopup = ({
   };
 
   return (
-    <div
-      style={{ margin: 0, padding: 0 }}
-      className="w-40 rounded-md border bg-white shadow-md overflow-hidden"
-    >
+    <div className="w-40 rounded-md border bg-white shadow-md overflow-hidden p-2">
       <ul className="text-sm">
         <li
-          className="h-10 p-3 hover:bg-gray-100"
+          className="h-10 p-3 rounded-md hover:bg-violet-100"
           role="button"
           onClick={() => createNote({ variables: createNoteVariables })}
         >
@@ -133,7 +130,7 @@ const ActionPopup = ({
 
         {showLogout ? (
           <li
-            className="h-10 p-3 hover:bg-gray-100"
+            className="h-10 p-3 rounded-md hover:bg-violet-100"
             role="button"
             onClick={onLogout}
           >
@@ -141,9 +138,24 @@ const ActionPopup = ({
           </li>
         ) : (
           <>
-            <li className="h-10 p-3 hover:bg-gray-100">Duplicate Note</li>
             <li
-              className="h-10 p-3 hover:bg-gray-100"
+              className="h-10 p-3 rounded-md hover:bg-violet-100"
+              role="button"
+              onClick={() =>
+                createNote({
+                  variables: {
+                    input: {
+                      title: noteData?.selectNote.title,
+                      content: noteData?.selectNote.content,
+                    },
+                  },
+                })
+              }
+            >
+              Duplicate Note
+            </li>
+            <li
+              className="h-10 p-3 rounded-md hover:bg-violet-100"
               role="button"
               onClick={() =>
                 deleteNote({
@@ -239,7 +251,7 @@ export function NoteList() {
                   <p className="capitalize font-medium">
                     {note.title || "New Note"}
                   </p>
-                  <p className="capitalize text-xs font-light text-gray-500 mt-2">
+                  <p className="capitalize text-xs font-light text-gray-500 mt-2 line-clamp-3">
                     {note.content || "No additional text"}
                   </p>
                 </div>

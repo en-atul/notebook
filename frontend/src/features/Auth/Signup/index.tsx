@@ -20,14 +20,14 @@ export default function Signup() {
   });
 
   const [signup, { loading }] = useMutation(SIGNUP_MUTATION, {
-    onError(error, clientOptions) {
-      console.log("errrrr");
-      //       const errMessage = err?.response?.errors[0]?.message;
-      //       const fieldName = err?.response?.errors[0]?.extensions?.name;
+    onError(error) {
+      const errMessage = error.graphQLErrors[0]?.message;
+      const fieldName =
+        (error.graphQLErrors[0]?.extensions?.name as "email") || "password";
 
-      //       if (["fullname", "email", "password"].includes(fieldName)) {
-      //         setError(fieldName, { type: "manual", message: errMessage });
-      //       } else alert(errMessage);
+      if (["fullname", "email", "password"].includes(fieldName)) {
+        setError(fieldName, { type: "manual", message: errMessage });
+      } else alert(errMessage);
     },
     update(cache, { data }) {
       cache.writeQuery({
@@ -38,7 +38,7 @@ export default function Signup() {
   });
 
   const submit = (values: Yup.InferType<typeof RegisterSchema>) => {
-    signup({ variables: values });
+    signup({ variables: { input: values } });
   };
 
   return (

@@ -17,8 +17,9 @@ export class AuthService {
   ) {}
 
   async signup(signupInput: signupInput): Promise<AuthResponse> {
-    const hash = await argon.hash(signupInput.password);
+    console.log('hgggg', signupInput);
 
+    const hash = await argon.hash(signupInput.password);
     const user = await this.prisma.user
       .create({
         data: {
@@ -28,6 +29,19 @@ export class AuthService {
       })
       .catch((error) => {
         if (error instanceof PrismaClientKnownRequestError) {
+          if (
+            error.code === 'P2002' &&
+            error.meta?.target &&
+            Array.isArray(error.meta.target) &&
+            error.meta.target[0] === 'email'
+          ) {
+            throw new GraphQLError('Email has already been taken', {
+              extensions: {
+                code: 403,
+                name: error.meta.target[0],
+              },
+            });
+          }
           if (error.code === 'P2002') {
             throw new ForbiddenException('Credentials incorrect');
           }

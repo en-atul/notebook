@@ -10,7 +10,7 @@ export const RegisterSchema = Yup.object()
       ),
     email: Yup.string().email("Invalid email").required("Email Required"),
     password: Yup.string()
-      .min(8, "Password Must Be atleast of 6 Character")
+      .min(8, "Password Must Be atleast of 8 Character")
       .max(50, "Password Too Long")
       .required("Password Required"),
   })
