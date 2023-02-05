@@ -1,6 +1,11 @@
 # Notebook
 
-- Note-taking app, developed using Nestjs, GraphQL, ReactJS, React-Query
+- Notes taking app, developed using Nestjs, GraphQL, ReactJS, React-Query
+
+![SignUp](screenshots/signup.png?raw=true "Sign Up")
+![Login](screenshots/login.png?raw=true "Login")
+![Note Action Popup](screenshots/note-action.png?raw=true "Action popup")
+![Logout Popup](screenshots/logout.png?raw=true "Logout Popup")
 
 ## backend stack
 
@@ -12,6 +17,7 @@ authentication using jwt i.e. access_token & refresh_token
 realtime notes update
 
 ## login mutation
+
 ```
   mutation login($input: loginInput!){
   login(loginInput:$input){
@@ -35,6 +41,7 @@ QUERY VARIABLES
 ```
 
 ## create note subscription
+
 ```
 subscription{
   noteCreated{
