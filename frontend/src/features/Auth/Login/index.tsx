@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import * as Yup from "yup";
 import { LOGIN_MUTATION, USER_QUERY } from "services";
 import { useMutation } from "@apollo/client";
+import { Helmet } from "react-helmet";
 
 export default function Login() {
   const {
@@ -44,6 +45,9 @@ export default function Login() {
 
   return (
     <div className="w-full max-w-xs mx-auto">
+      <Helmet>
+        <title>Notes | Login</title>
+      </Helmet>
       <h1 className="text-center text-gray-600">Welcome Back</h1>
       <p className="text-center text-sm text-gray-400 mt-2 mb-7">
         Welcome Back! Please enter your credentials
