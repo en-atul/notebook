@@ -1,8 +1,24 @@
 {
   "name": "nestjs-graphql-notes",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Notes taking app",
+  "keywords": [
+    "graphql",
+    "notes-taking-app",
+    "react",
+    "apollo",
+    "graphql subscriptions",
+    "graphql data persist",
+    "nestjs",
+    "nestjs graphql",
+    "jwt",
+    "refresh token",
+    "access token"
+  ],
+  "author": {
+    "name": "atul15r",
+    "url": "https://github.com/atul15r"
+  },
   "private": true,
   "license": "UNLICENSED",
   "scripts": {

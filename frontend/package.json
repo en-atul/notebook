@@ -1,7 +1,25 @@
 {
   "name": "frontend",
   "version": "0.1.0",
+  "description": "Notes taking app",
   "private": true,
+  "keywords": [
+    "graphql",
+    "notes-taking-app",
+    "react",
+    "apollo",
+    "graphql subscriptions",
+    "graphql data persist",
+    "nestjs",
+    "nestjs graphql",
+    "jwt",
+    "refresh token",
+    "access token"
+  ],
+  "author": {
+    "name": "atul15r",
+    "url": "https://github.com/atul15r"
+  },
   "dependencies": {
     "@apollo/client": "^3.7.6",
     "@hookform/resolvers": "^2.9.10",
