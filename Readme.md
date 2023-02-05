@@ -1,70 +1,57 @@
-# Notebook
+# Notebook (Notes taking app)
 
-##### Notes taking app, developed using Nestjs, GraphQL, Prisma, Docker ReactJS, Apollo/Client
+Developed using Nestjs, GraphQL, Prisma, Docker, ReactJS, Apollo/Client.
 
-## backend stack
+## Backend
 
-⋅⋅* NestJS
-⋅⋅* GraphQL
-⋅⋅* Passport
-⋅⋅* graphql-subscriptions
+#### Stack:
 
-fatures:
-authentication using passport/jwt i.e. access_token & refresh_token
-realtime notes update
+- NestJS
+- GraphQL
+- Passport
+- graphql-subscriptions
+- Prisma
+- Docker
 
-#### login mutation
+##### features:
 
-```
-  mutation login($input: loginInput!){
-  login(loginInput:$input){
-    id
-    fullname
-    email
-    access_token
-    refresh_token
-  }
-}
+1. Jwt authentication/authorization
+2. _CRUD_ Note
+3. realtime update using graphql-subscriptions
+4. refresh token
+5. **_subscriptions-transport-ws_** authentication
+6. **_graphql-ws_** authentication
 
-QUERY VARIABLES
+### Steps to run backend
 
-{
-  "input":{
-    "email":"newyork@city.ae",
-    "password":"123456"
-  }
-}
+- `npm run docker:up` (in case you don't want to use docker, then please replace postgresql url in server/.env)
+- `npm install`
+- `npm run start:dev`
 
-```
+## Frontend Stack
 
-#### create note subscription
+- ReactJS
+- GraphQL
+- Typescript
+- Apollo/Client
 
-```
-subscription{
-  noteCreated{
-    id
-    title
-    content
-  }
-}
+### Steps to run frontend
 
-HTTP HEADERS
+- `npm install`
+- `npm start`
 
-{
-  "Authorization":"Bearer access_token"
-}
-```
-
-more info ... CS
-
-## frontend stack
-
-    ⋅⋅* RaectJS
-    ⋅⋅* GraphQL
-    ⋅⋅* Typescript
-    ⋅⋅* Apollo/Client
+> Signup
 
 ![SignUp](screenshots/signup.png?raw=true "Sign Up")
+
+> Login
+
 ![Login](screenshots/login.png?raw=true "Login")
+
+> Note Action Popup
+
 ![Note Action Popup](screenshots/note-action.png?raw=true "Action popup")
+
+> Logout Popup
+
 ![Logout Popup](screenshots/logout.png?raw=true "Logout Popup")
