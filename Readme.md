@@ -1,22 +1,19 @@
 # Notebook
 
-- Notes taking app, developed using Nestjs, GraphQL, ReactJS, React-Query
-
-![SignUp](screenshots/signup.png?raw=true "Sign Up")
-![Login](screenshots/login.png?raw=true "Login")
-![Note Action Popup](screenshots/note-action.png?raw=true "Action popup")
-![Logout Popup](screenshots/logout.png?raw=true "Logout Popup")
+##### Notes taking app, developed using Nestjs, GraphQL, Prisma, Docker ReactJS, Apollo/Client
 
 ## backend stack
 
-- NestJS
-- GraphQL
+⋅⋅* NestJS
+⋅⋅* GraphQL
+⋅⋅* Passport
+⋅⋅* graphql-subscriptions
 
 fatures:
-authentication using jwt i.e. access_token & refresh_token
+authentication using passport/jwt i.e. access_token & refresh_token
 realtime notes update
 
-## login mutation
+#### login mutation
 
 ```
   mutation login($input: loginInput!){
@@ -40,7 +37,7 @@ QUERY VARIABLES
 
 ```
 
-## create note subscription
+#### create note subscription
 
 ```
 subscription{
@@ -62,8 +59,12 @@ more info ... CS
 
 ## frontend stack
 
-- RaectJS
-- GraphQL
-- Typescript
+    ⋅⋅* RaectJS
+    ⋅⋅* GraphQL
+    ⋅⋅* Typescript
+    ⋅⋅* Apollo/Client
 
-more info ... CS
+![SignUp](screenshots/signup.png?raw=true "Sign Up")
+![Login](screenshots/login.png?raw=true "Login")
+![Note Action Popup](screenshots/note-action.png?raw=true "Action popup")
+![Logout Popup](screenshots/logout.png?raw=true "Logout Popup")
