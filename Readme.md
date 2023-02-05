@@ -12,6 +12,7 @@ Developed using Nestjs, GraphQL, Prisma, Docker, ReactJS, Apollo/Client.
 - graphql-subscriptions
 - Prisma
 - Docker
+- Postgresql
 
 ##### features:
 
@@ -24,9 +25,19 @@ Developed using Nestjs, GraphQL, Prisma, Docker, ReactJS, Apollo/Client.
 
 ### Steps to run backend
 
-- `npm run docker:up` (in case you don't want to use docker, then please replace postgresql url in server/.env)
+- `npm run docker:up` (in case you don't want to use docker, then please replace the `DATABASE_URL` in server/.env)
 - `npm install`
 - `npm run start:dev`
+
+#### DB Data Visualize
+
+`npx prisma studio`
+
+![DB Visualize](screenshots/prisma.gif?raw=true "Prisma DB Visualize")
+
+#### Realtime Data using GraphQL-Subscription
+
+![Realtime Data](screenshots/subscriptions.gif?raw=true "GraphQL Realtime Data")
 
 ## Frontend Stack
 
