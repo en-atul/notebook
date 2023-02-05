@@ -52,6 +52,7 @@ import { NotesModule } from './notes/notes.module';
             },
           };
         }
+        return;
       },
       debug: process.env.NODE_ENV === 'development',
       playground: process.env.NODE_ENV === 'development',
