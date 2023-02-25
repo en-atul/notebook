@@ -4,7 +4,6 @@ import "./index.css";
 import reportWebVitals from "./reportWebVitals";
 import { ApolloProvider } from "@apollo/client";
 import { client } from "utils";
-// import { ReactQueryDevtools } from "react-query/devtools";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -16,9 +15,6 @@ root.render(
   <React.StrictMode>
     <ApolloProvider client={client}>
       <App />
-      {/* {process.env.NODE_ENV === "development" ? (
-        <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
-      ) : null} */}
     </ApolloProvider>
   </React.StrictMode>
 );

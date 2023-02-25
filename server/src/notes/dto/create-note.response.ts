@@ -1,6 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
-@ObjectType({ description: 'Craete Note model' })
+@ObjectType({ description: 'Create Note model' })
 export class NoteResponse {
   @Field()
   id: string;

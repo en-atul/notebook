@@ -17,8 +17,6 @@ export class AuthService {
   ) {}
 
   async signup(signupInput: signupInput): Promise<AuthResponse> {
-    console.log('hgggg', signupInput);
-
     const hash = await argon.hash(signupInput.password);
     const user = await this.prisma.user
       .create({
